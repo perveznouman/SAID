@@ -1,0 +1,10 @@
+"use client";
+import { useEffect,useState } from "react";
+import type { Project } from "../data/projects";
+
+export function ProjectGrid({projects,filters}:{projects:Project[];filters:{label:string;value:string}[]}){
+  const[active,setActive]=useState("all");
+  useEffect(()=>{const requested=new URLSearchParams(window.location.search).get("category");if(requested&&filters.some(filter=>filter.value===requested))setActive(requested)},[filters]);
+  const visible=active==="all"?projects:projects.filter(project=>project.category===active);
+  return <section className="project-index"><div className="wrap"><div className="project-filters"><span>Filters</span><div className="filter-buttons" role="group" aria-label="Filter projects">{filters.map(filter=><button className={`filter-button ${active===filter.value?"active":""}`} onClick={()=>setActive(filter.value)} aria-pressed={active===filter.value} key={filter.value}>{filter.label}</button>)}</div></div><div className="project-index-grid">{visible.map(project=><article className={`project-index-card ${project.gallery?"has-gallery":""}`} key={project.title}>{project.image?<div className={`project-cover ${project.position?"triptych":""}`} style={{backgroundImage:`url('${project.image}')`,backgroundPosition:project.position??"center"}}/>:<div className="project-cover project-placeholder"><span>Corporate Office</span><strong>{project.title}</strong><small>Project imagery coming soon</small></div>}<div className="project-card-meta"><span>{project.location}</span><span>{project.year}</span></div><h2>{project.title}</h2><p className="project-type">{project.type} · {project.area}</p><p className="project-summary">{project.summary}</p>{project.gallery&&<div className="project-gallery"><div className="project-gallery-heading"><span>Project gallery</span><small>{String(project.gallery.length).padStart(2,"0")} views</small></div><div className="project-gallery-grid">{project.gallery.map((image,index)=><figure key={image}><img src={image} alt={`${project.title} — view ${index+1}`} loading="lazy"/></figure>)}</div></div>}</article>)}</div></div></section>
+}
